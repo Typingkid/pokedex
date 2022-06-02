@@ -21,7 +21,8 @@ async function loadList(pokemon) {
   return list.data;
 }
 
-function card(data) {
+async function card(id) {
+  let data = await loadCard(id);
   let html = `
         <h2>${data.name}</h2>
         <div>${data.hp} HP</div>
@@ -30,8 +31,11 @@ function card(data) {
 
   return html;
 }
-
-function list(data) {
+async function list(query) {
+  let data = await loadList(query);
+  if (data.length === 0) {
+    return `no results for "${query}"`;
+  }
   let html = `
     <ul>
         ${data.map(listItem).join("")}
@@ -59,11 +63,9 @@ function updateSearch(query) {
   let pokemonId = params.get("id");
 
   if (pokemonId) {
-    let data = await loadCard(pokemonId);
-    render(card(data));
+    render(await card(pokemonId));
   } else if (pokemonName) {
     updateSearch(pokemonName);
-    let pokemonList = await loadList(pokemonName);
-    render(list(pokemonList));
+    render(await list(pokemonName));
   }
 })();
